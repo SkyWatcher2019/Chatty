@@ -21,7 +21,6 @@ import ru.mrbrikster.chatty.Chatty;
 public class JsonStorage {
 
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-  private static final JsonParser JSON_PARSER = new JsonParser();
 
   private final File storageFile;
   private final Configuration configuration;
@@ -44,7 +43,7 @@ public class JsonStorage {
   private void setProperty(String player, String property, JsonElement value) {
     JsonElement jsonObject = null;
     try {
-      jsonObject = JSON_PARSER.parse(read());
+      jsonObject = JsonParser.parseString(read());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -95,7 +94,7 @@ public class JsonStorage {
 
   private Optional<JsonElement> getProperty(String player, String property) {
     try {
-      JsonElement jsonObject = JSON_PARSER.parse(read());
+      JsonElement jsonObject = JsonParser.parseString(read());
 
       if (!jsonObject.isJsonObject()) {
         return Optional.empty();

@@ -16,7 +16,6 @@ import ru.mrbrikster.chatty.util.textapi.NMSUtil;
 public class ChatNotification extends Notification {
 
   private static final String PERMISSION_NODE = NOTIFICATION_PERMISSION_NODE + "chat.%s";
-  private static final JsonParser JSON_PARSER = new JsonParser();
 
   private final String name;
   private final List<List<Pair<String, Boolean>>> messages = new ArrayList<>();
@@ -37,7 +36,7 @@ public class ChatNotification extends Notification {
       List<Pair<String, Boolean>> formattedLines = new ArrayList<>();
       for (String line : lines) {
         try {
-          JsonObject jsonObject = JSON_PARSER.parse(line).getAsJsonObject();
+          JsonObject jsonObject = JsonParser.parseString(line).getAsJsonObject();
           debugger.debug("Seems to line is JSON!");
           formattedLines.add(Pair.of(jsonObject.toString(), true));
         } catch (JsonSyntaxException | IllegalStateException exception) {

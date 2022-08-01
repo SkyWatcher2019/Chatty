@@ -23,7 +23,7 @@ public class SwearsCommand extends BukkitCommand {
 
         if (SwearModerationMethod.addWhitelistWord(word)) {
           try {
-            Files.append("\n" + word, SwearModerationMethod.getWhitelistFile(), StandardCharsets.UTF_8);
+            Files.asCharSink(SwearModerationMethod.getWhitelistFile(), StandardCharsets.UTF_8).write("\n" + word);
           } catch (IOException e) {
             e.printStackTrace();
           }
