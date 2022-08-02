@@ -28,6 +28,7 @@ public class CommandManager {
   private ChatCommand chatCommand;
   private PrefixCommand prefixCommand;
   private SuffixCommand suffixCommand;
+  private ToggleJoinsCommand toggleJoinsCommand;
 
   public CommandManager(Chatty chatty) {
     this.configuration = chatty.getExact(Configuration.class);
@@ -92,6 +93,11 @@ public class CommandManager {
       this.suffixCommand = new SuffixCommand(configuration, dependencyManager, jsonStorage);
       this.suffixCommand.register(Chatty.instance());
     }
+
+    if (configuration.getNode("miscellaneous.commands.togglejoins.enable").getAsBoolean(false)) {
+      this.toggleJoinsCommand = new ToggleJoinsCommand(jsonStorage);
+      this.toggleJoinsCommand.register(Chatty.instance());
+    }
   }
 
   public void unregisterAll() {
@@ -132,6 +138,9 @@ public class CommandManager {
     if (suffixCommand != null) {
       this.suffixCommand.unregister(Chatty.instance());
     }
-  }
 
+    if (toggleJoinsCommand != null) {
+      this.toggleJoinsCommand.unregister(Chatty.instance());
+    }
+  }
 }

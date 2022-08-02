@@ -602,6 +602,8 @@ miscellaneous:
       # (Requires NameTagEdit plugin).
       auto-nte: false
 
+    togglejoins:
+      enable: true
   # Change vanilla Minecraft messages.
   # Supports PlaceholderAPI.
   vanilla:

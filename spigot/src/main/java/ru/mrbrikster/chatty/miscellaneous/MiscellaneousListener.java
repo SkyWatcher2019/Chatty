@@ -1,5 +1,6 @@
 package ru.mrbrikster.chatty.miscellaneous;
 
+import com.google.gson.JsonPrimitive;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +11,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.chat.JsonStorage;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
 import ru.mrbrikster.chatty.util.Sound;
@@ -20,11 +22,13 @@ public class MiscellaneousListener implements Listener {
   private final Configuration configuration;
   private final PlayerTagManager playerTagManager;
   private final DependencyManager dependencyManager;
+  private final JsonStorage jsonStorage;
 
   public MiscellaneousListener(Chatty chatty) {
     this.configuration = chatty.getExact(Configuration.class);
     this.playerTagManager = chatty.getExact(PlayerTagManager.class);
     this.dependencyManager = chatty.getExact(DependencyManager.class);
+    this.jsonStorage = chatty.getExact(JsonStorage.class);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -65,20 +69,25 @@ public class MiscellaneousListener implements Listener {
       if (joinMessage.isEmpty() || !hasPermission) {
         event.setJoinMessage(null);
       } else {
-        event.setJoinMessage(TextUtil.stylish(
+        event.setJoinMessage(null);
+        String msg = TextUtil.stylish(
             applyPlaceholders(
                 event.getPlayer(),
                 joinMessage.replace("{prefix}", playerTagManager.getPrefix(event.getPlayer()))
                     .replace("{suffix}", playerTagManager.getSuffix(event.getPlayer()))
                     .replace("{player}", event.getPlayer().getDisplayName())
-            )));
+            ));
+        Bukkit.getOnlinePlayers().stream().filter(player -> jsonStorage.getProperty(player, "joins").orElse(new JsonPrimitive(true)).getAsBoolean())
+            .forEach(player -> player.sendMessage(msg));
+
       }
     }
 
     if (hasPermission) {
       if (soundName != null) {
         org.bukkit.Sound sound = Sound.byName(soundName);
-        Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, (float) soundVolume, (float) soundPitch));
+        Bukkit.getOnlinePlayers().stream().filter(player -> jsonStorage.getProperty(player, "joins").orElse(new JsonPrimitive(true)).getAsBoolean())
+            .forEach(player -> player.playSound(player.getLocation(), sound, (float) soundVolume, (float) soundPitch));
       }
     }
   }
@@ -100,13 +109,16 @@ public class MiscellaneousListener implements Listener {
       if (quitMessage.isEmpty() || !hasPermission) {
         event.setQuitMessage(null);
       } else {
-        event.setQuitMessage(TextUtil.stylish(
+        event.setQuitMessage(null);
+        String msg = TextUtil.stylish(
             applyPlaceholders(
                 event.getPlayer(),
                 quitMessage.replace("{prefix}", playerTagManager.getPrefix(event.getPlayer()))
                     .replace("{suffix}", playerTagManager.getSuffix(event.getPlayer()))
                     .replace("{player}", event.getPlayer().getDisplayName())
-            )));
+            ));
+        Bukkit.getOnlinePlayers().stream().filter(player -> jsonStorage.getProperty(player, "joins").orElse(new JsonPrimitive(true)).getAsBoolean())
+            .forEach(player -> player.sendMessage(msg));
       }
     }
 
@@ -116,7 +128,8 @@ public class MiscellaneousListener implements Listener {
         org.bukkit.Sound sound = Sound.byName(soundName);
         double soundVolume = (double) configuration.getNode("miscellaneous.vanilla.quit.sound-volume").get(1d);
         double soundPitch = (double) configuration.getNode("miscellaneous.vanilla.quit.sound-pitch").get(1d);
-        Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, (float) soundVolume, (float) soundPitch));
+        Bukkit.getOnlinePlayers().stream().filter(player -> jsonStorage.getProperty(player, "joins").orElse(new JsonPrimitive(true)).getAsBoolean())
+            .forEach(player -> player.playSound(player.getLocation(), sound, (float) soundVolume, (float) soundPitch));
       }
     }
   }
